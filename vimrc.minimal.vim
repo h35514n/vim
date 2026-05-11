@@ -28,7 +28,26 @@ setlocal undolevels=1     " only one undo allowed
 set backspace=indent,eol,start  " make that backspace key work the way it should
 set runtimepath=$VIMRUNTIME     " turn off user scripts, https://github.com/igrigorik/vimgolf/issues/129
 
-source $XDG_CONFIG_HOME/vim/xdg.vim
+" XDG base directories (inlined from former xdg.vim). Use bare `$VAR` so Vim
+" expands the env var — `empty("$VAR")` tests a string literal and is never
+" true. The same block lives in vimrc — keep them in sync.
+if empty($XDG_CACHE_HOME)
+  let $XDG_CACHE_HOME = $HOME . '/.cache'
+endif
+if empty($XDG_CONFIG_HOME)
+  let $XDG_CONFIG_HOME = $HOME . '/.config'
+endif
+if empty($XDG_DATA_HOME)
+  let $XDG_DATA_HOME = $HOME . '/.local/share'
+endif
+
+let $MYVIMRC = $XDG_CONFIG_HOME . '/vim/vimrc'
+let g:netrw_home = $XDG_CACHE_HOME . '/vim'
+
+set directory=$XDG_CACHE_HOME/vim/swap//
+set backupdir=$XDG_CACHE_HOME/vim/backup//
+set undodir=$XDG_CACHE_HOME/vim/undo//
+set viminfofile=$XDG_CACHE_HOME/vim/viminfo
 
 " " disable event bindings used by augroups for syntax highlighting, etc.
 " set eventignore+=FileType

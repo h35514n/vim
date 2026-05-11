@@ -2,16 +2,31 @@ set nocompatible
 scriptencoding utf-8
 
 " ---------------- Bootstrap / XDG ----------------
-syntax on
-filetype plugin indent on
-set encoding=utf-8
-set fileencodings=utf-8
+" Default XDG base directories before anything references them. Use bare `$VAR`
+" so Vim expands the env var — `empty("$VAR")` would test a string literal and
+" never be true, leaving the fallbacks dead.
+" The same XDG block is inlined in vimrc.minimal.vim — keep them in sync.
+if empty($XDG_CACHE_HOME)
+  let $XDG_CACHE_HOME = $HOME . '/.cache'
+endif
+if empty($XDG_CONFIG_HOME)
+  let $XDG_CONFIG_HOME = $HOME . '/.config'
+endif
+if empty($XDG_DATA_HOME)
+  let $XDG_DATA_HOME = $HOME . '/.local/share'
+endif
+
+let $MYVIMRC = $XDG_CONFIG_HOME . '/vim/vimrc'
 
 set runtimepath+=$XDG_CONFIG_HOME/vim,$XDG_CONFIG_HOME/vim/after
 set runtimepath+=$XDG_DATA_HOME/fzf
 set runtimepath+=$VIM,$VIMRUNTIME
 
-runtime xdg.vim
+set encoding=utf-8
+set fileencodings=utf-8
+
+syntax on
+filetype plugin indent on
 
 function! s:EnsureDir(path) abort
   if !isdirectory(expand(a:path))
@@ -25,18 +40,23 @@ call s:EnsureDir('$XDG_CACHE_HOME/vim/swap')
 call s:EnsureDir('$XDG_CACHE_HOME/vim/undo')
 call s:EnsureDir('$XDG_DATA_HOME/vim/plugged')
 
+set directory=$XDG_CACHE_HOME/vim/swap//
+set backupdir=$XDG_CACHE_HOME/vim/backup//
+set undodir=$XDG_CACHE_HOME/vim/undo//
+set viminfofile=$XDG_CACHE_HOME/vim/viminfo
+
 if has('persistent_undo')
   set undofile
 endif
 
-" Use useful packages that ship with modern Vim when available.
+" ---------------- Built-in Packages ----------------
 silent! packadd matchit
 silent! packadd comment
 silent! packadd editorconfig
 silent! packadd osc52
 
-" Vim's bundled EditorConfig package handles real files well, but its BufNew
-" hook can misfire on scratch buffers opened by commands such as :PlugStatus.
+" Vim's bundled EditorConfig BufNew hook misfires on scratch buffers opened by
+" commands such as :PlugStatus.
 silent! autocmd! editorconfig BufNew
 
 if exists('+clipmethod')
@@ -103,9 +123,6 @@ set smartindent
 set backup
 set writebackup
 set backupskip=/tmp/*,/private/tmp/*
-set directory=$XDG_CACHE_HOME/vim/swap//
-set backupdir=$XDG_CACHE_HOME/vim/backup//
-set undodir=$XDG_CACHE_HOME/vim/undo//
 
 set foldmethod=indent
 set foldlevelstart=99
@@ -286,6 +303,7 @@ let g:fzf_colors =
       \   'header':  ['fg', 'Comment'] }
 
 " ---------------- netrw ----------------
+let g:netrw_home = $XDG_CACHE_HOME . '/vim'
 let g:netrw_liststyle = 4
 let g:netrw_preview = 1
 let g:netrw_winsize = 70
