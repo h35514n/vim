@@ -14,6 +14,7 @@ Options:
   --with-language-tools Install optional linters/formatters where available.
   --no-link             Do not symlink this directory to $XDG_CONFIG_HOME/vim.
   --no-plugins          Do not run Vim-plug installation.
+  --no-shell-init       Do not append the VIMINIT export to ~/.bashrc or ~/.zshrc.
   --dry-run             Print commands without running them.
   -h, --help            Show this help.
 USAGE
@@ -63,6 +64,7 @@ DRY_RUN=0
 LINK_CONFIG=1
 INSTALL_PLUGINS=1
 INSTALL_LANGUAGE_TOOLS=0
+INSTALL_SHELL_INIT=1
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -77,6 +79,9 @@ while [ "$#" -gt 0 ]; do
       ;;
     --no-plugins)
       INSTALL_PLUGINS=0
+      ;;
+    --no-shell-init)
+      INSTALL_SHELL_INIT=0
       ;;
     --dry-run)
       DRY_RUN=1
@@ -250,6 +255,39 @@ install_plugins() {
     '+PlugInstall --sync' '+qa!'
 }
 
+write_viminit_to_shell_rc() {
+  local viminit_line="export VIMINIT=\"source ${XDG_CONFIG_HOME}/vim/vimrc\""
+  local shell_name shell_rc
+
+  shell_name="$(basename "${SHELL:-}")"
+  case "${shell_name}" in
+    zsh)
+      shell_rc="${HOME}/.zshrc"
+      ;;
+    bash)
+      shell_rc="${HOME}/.bashrc"
+      ;;
+    *)
+      warn "unrecognized SHELL='${SHELL:-}'; skipping VIMINIT export"
+      printf '\nAdd this to your shell profile manually:\n\n  %s\n\n' "${viminit_line}"
+      return
+      ;;
+  esac
+
+  if [ -f "${shell_rc}" ] && grep -Eq '^[[:space:]]*export[[:space:]]+VIMINIT=' "${shell_rc}"; then
+    log "VIMINIT already exported in ${shell_rc}; leaving as is"
+    return
+  fi
+
+  if [ "${DRY_RUN}" = "1" ]; then
+    printf '+ append %q to %q\n' "${viminit_line}" "${shell_rc}"
+    return
+  fi
+
+  printf '\n# Added by vim/bin/setup\n%s\n' "${viminit_line}" >>"${shell_rc}"
+  log "Appended VIMINIT export to ${shell_rc} (open a new shell or 'source ${shell_rc}')"
+}
+
 PACKAGE_MANAGER="$(detect_package_manager)"
 
 log "Using package manager: ${PACKAGE_MANAGER}"
@@ -298,11 +336,9 @@ if [ "${INSTALL_PLUGINS}" = "1" ]; then
   install_plugins
 fi
 
+if [ "${INSTALL_SHELL_INIT}" = "1" ]; then
+  log "Configuring shell to load Vim config via VIMINIT"
+  write_viminit_to_shell_rc
+fi
+
 log "Done"
-cat <<EOF
-
-Add this to your shell profile if it is not already set:
-
-  export VIMINIT="source ${XDG_CONFIG_HOME}/vim/vimrc"
-
-EOF
