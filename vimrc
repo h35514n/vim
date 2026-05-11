@@ -173,7 +173,8 @@ if has('gui_running')
   set guioptions+=c
   set transparency=1
   set lines=50 columns=80
-  set guifont=JuliaMono:h16
+  set macligatures
+  set guifont=Source\ Code\ Pro\ Ligaturized:h18
 endif
 
 " ---------------- Autocommands ----------------
