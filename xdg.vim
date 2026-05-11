@@ -32,16 +32,16 @@
 "       3b. Set the environment variable VIMINIT to "source <path_to_vimrc>"
 "           (the content of VIMINIT can be any ex command).
 
-if empty("$XDG_CACHE_HOME")
-    let $XDG_CACHE_HOME="$HOME/.cache"
+if empty($XDG_CACHE_HOME)
+    let $XDG_CACHE_HOME=$HOME . '/.cache'
 endif
 
-if empty("$XDG_CONFIG_HOME")
-    let $XDG_CONFIG_HOME="$HOME/.config"
+if empty($XDG_CONFIG_HOME)
+    let $XDG_CONFIG_HOME=$HOME . '/.config'
 endif
 
-if empty("$XDG_DATA_HOME")
-    let $XDG_DATA_HOME="$HOME/.local/share"
+if empty($XDG_DATA_HOME)
+    let $XDG_DATA_HOME=$HOME . '/.local/share'
 endif
 
 set directory=$XDG_CACHE_HOME/vim/swap//
