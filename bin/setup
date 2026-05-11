@@ -218,7 +218,7 @@ ensure_vim_plug() {
 
   run mkdir -p "$(dirname "${plug_path}")"
 
-  if [ -f "${repo_plug}" ]; then
+  if [ -f "${repo_plug}" ] && [ ! -L "${repo_plug}" ]; then
     run cp "${repo_plug}" "${plug_path}"
   else
     run curl -fLo "${plug_path}" \
