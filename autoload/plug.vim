@@ -1,1 +1,1 @@
-../../../share/vim/vim-plug/plug.vim
+../share/vim-plug/plug.vim
