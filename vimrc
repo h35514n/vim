@@ -160,7 +160,7 @@ if has('termguicolors')
 endif
 
 set background=dark
-silent! colorscheme spacemacs
+silent! colorscheme gruvbox
 
 set number
 set relativenumber

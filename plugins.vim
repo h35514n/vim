@@ -33,5 +33,8 @@ Plug 'kana/vim-textobj-entire'
 Plug 'kana/vim-textobj-indent'
 Plug 'kana/vim-textobj-line'
 
+" Theme
+Plug 'morhetz/gruvbox'
+
 " Data navigation
 Plug 'mogelbrod/vim-jsonpath', { 'for': 'json' }
